@@ -6,3 +6,4 @@ venv/
 storage/*.db
 .streamlit/secrets.toml
 .claude/
+.speficy/
