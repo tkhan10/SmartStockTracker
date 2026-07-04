@@ -1,7 +1,6 @@
-import time
-
 import requests
 
+from cache_utils import TTLCache
 from config import FINNHUB_API_KEY
 
 BASE_URL = "https://finnhub.io/api/v1"
@@ -11,21 +10,7 @@ class FinnhubError(Exception):
     pass
 
 
-class _TTLCache:
-    def __init__(self):
-        self._store = {}
-
-    def get(self, key, ttl):
-        entry = self._store.get(key)
-        if entry and (time.time() - entry[0]) < ttl:
-            return entry[1]
-        return None
-
-    def set(self, key, value):
-        self._store[key] = (time.time(), value)
-
-
-_cache = _TTLCache()
+_cache = TTLCache()
 
 
 def _get(path, params, ttl=0):
