@@ -41,3 +41,14 @@ Switch which one is used in two ways:
 
 To add another provider later, implement `StockDataProvider` in a new
 `providers/<name>_provider.py` and register it in `providers/factory.py`.
+
+## Deployment
+
+Deployed on Streamlit Community Cloud, which auto-redeploys on every push to
+`main` — no separate deploy pipeline is needed for that part.
+
+A GitHub Actions workflow (`.github/workflows/ci.yml`) runs on every push and
+PR to `main` as a safety gate *before* that auto-deploy happens: it installs
+dependencies, runs `scripts/smoke_test.py` (imports every module and executes
+each page's top-level code to catch import/syntax/logic errors without a
+browser), then boots the real Streamlit server and confirms it responds.

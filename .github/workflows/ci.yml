@@ -1,0 +1,42 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  smoke-test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Import + page smoke test
+        run: python scripts/smoke_test.py
+
+      - name: Boot Streamlit server
+        run: |
+          streamlit run app.py --server.headless true --server.port 8501 &
+          echo $! > streamlit.pid
+          for i in $(seq 1 30); do
+            if curl -sf http://localhost:8501 > /dev/null; then
+              echo "Streamlit server booted successfully"
+              exit 0
+            fi
+            sleep 1
+          done
+          echo "Streamlit server failed to boot within 30s"
+          exit 1
+
+      - name: Stop Streamlit server
+        if: always()
+        run: kill "$(cat streamlit.pid)" 2>/dev/null || true
