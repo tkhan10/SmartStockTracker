@@ -26,7 +26,7 @@ FINNHUB_API_KEY = _get_config("FINNHUB_API_KEY", "")
 DB_PATH = os.getenv("DB_PATH", os.path.join("storage", "smartstock.db"))
 
 # Which data provider to use by default: "finnhub" or "yfinance"
-STOCK_DATA_PROVIDER = _get_config("STOCK_DATA_PROVIDER", "finnhub").lower()
+STOCK_DATA_PROVIDER = _get_config("STOCK_DATA_PROVIDER", "yfinance").lower()
 
 # SMTP settings used to send price-alert notification emails (Phase 2).
 SMTP_HOST = _get_config("SMTP_HOST", "")
