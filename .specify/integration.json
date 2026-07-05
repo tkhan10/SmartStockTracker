@@ -6,7 +6,7 @@
   ],
   "integration_settings": {
     "claude": {
-      "script": "py",
+      "script": "sh",
       "invoke_separator": "-"
     }
   },

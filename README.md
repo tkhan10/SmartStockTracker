@@ -2,6 +2,9 @@
 
 Phase 1: search stocks, maintain a watchlist, view live price and news.
 
+Phase 2: price alerts with email notifications, and a Dashboard for an
+at-a-glance view of the whole watchlist.
+
 ## Setup
 
 1. (Optional) Get a free API key from https://finnhub.io/register — only needed if you
@@ -25,6 +28,10 @@ Phase 1: search stocks, maintain a watchlist, view live price and news.
 - **Search** (`app.py`) — search for a stock by symbol/name and add it to your watchlist.
 - **Watchlist** — see all tracked stocks with live price/change.
 - **Stock Detail** — pick a watchlist stock to see full quote stats and latest news.
+- **Alerts** — create price alerts (above/below a threshold, or percent-change) on
+  watchlist symbols, and manage (disable/re-arm/delete) existing ones.
+- **Dashboard** — gainers/losers, summary stats, and a recent-alerts feed for the
+  whole watchlist.
 
 ## Switching data providers
 
@@ -41,6 +48,38 @@ Switch which one is used in two ways:
 
 To add another provider later, implement `StockDataProvider` in a new
 `providers/<name>_provider.py` and register it in `providers/factory.py`.
+
+## Notifications & Email Alerts
+
+Create an alert on the **Alerts** page for any symbol in your watchlist:
+price above/below a threshold, or a percent-change threshold. When the
+condition is met, an email is sent to the address on the alert and it's
+marked `fired` (re-arm it from the same page to be notified again).
+
+Alerts are evaluated by a standalone script rather than inside the running
+Streamlit app, since Streamlit has no background worker process:
+
+1. Add SMTP settings to `.env` (see `.env.example`) — host, port, username,
+   password (an app-password works well for Gmail/Outlook), and
+   `ALERT_FROM_EMAIL`. No third-party email API account is required.
+2. Run a check manually any time with:
+   ```
+   python scripts/check_alerts.py           # evaluates and sends real emails
+   python scripts/check_alerts.py --dry-run # evaluates only, no email sent
+   ```
+3. In CI/production, `.github/workflows/alert-check.yml` runs this script on
+   a 15-minute cron schedule (also triggerable manually via
+   `workflow_dispatch`), using the same `SMTP_*`/`ALERT_FROM_EMAIL`/
+   `STOCK_DATA_PROVIDER`/`FINNHUB_API_KEY` values configured as **repository
+   secrets**.
+
+> **Note**: the scheduled GitHub Actions workflow and the deployed Streamlit
+> app must read the *same* database (`DB_PATH`) for alerts to actually be
+> found and checked. A plain local SQLite file checked out fresh by each
+> Actions run won't see alerts created in a separately-hosted Streamlit Cloud
+> instance's own disk. For a real deployment, point `DB_PATH` (or swap in a
+> hosted database) at storage reachable from both the app and the Action, or
+> self-host both the app and the cron job on the same machine/volume.
 
 ## Deployment
 

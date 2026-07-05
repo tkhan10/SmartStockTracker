@@ -25,7 +25,14 @@ def main():
     import config  # noqa: F401
     import ui_common  # noqa: F401
     from providers import base, factory, finnhub_provider, yfinance_provider  # noqa: F401
-    from services import finnhub_client, news_service, stock_service, watchlist_service  # noqa: F401
+    from services import (  # noqa: F401
+        alert_service,
+        email_service,
+        finnhub_client,
+        news_service,
+        stock_service,
+        watchlist_service,
+    )
     from storage import db, models  # noqa: F401
 
     print("Pure logic modules imported OK")
@@ -36,6 +43,8 @@ def main():
         ROOT / "app.py",
         ROOT / "pages" / "1_Watchlist.py",
         ROOT / "pages" / "2_Stock_Detail.py",
+        ROOT / "pages" / "3_Alerts.py",
+        ROOT / "pages" / "4_Dashboard.py",
     ]
     for i, path in enumerate(page_files):
         load_module_from_path(f"smoke_page_{i}", path)
